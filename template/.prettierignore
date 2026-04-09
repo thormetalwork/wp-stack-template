@@ -12,6 +12,7 @@ data/wordpress/xmlrpc.php
 # Build/Data
 data/mysql/
 backups/
+_archive/
 
 # Minified vendor files
 **/*.min.js

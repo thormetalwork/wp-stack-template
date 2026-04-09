@@ -1,7 +1,7 @@
-.PHONY: up down restart logs build status backup restore clean \
-       test test-all \
+.PHONY: up down restart logs logs-wp logs-mysql build status backup restore clean \
+       test test-all test-panel test-dash test-lead test-portal test-docker \
        lint lint-php lint-js lint-format lint-phpcs lint-phpstan \
-       format fix
+       format fix shell-wp shell-mysql
 
 # ── Stack Management ─────────────────────────────────────────
 up:
@@ -48,8 +48,22 @@ test:
 	bash scripts/test-connections.sh
 
 test-all:
-	@echo "Running all tests..."
-	@for f in tests/test-*.sh; do echo "▸ $$f"; bash "$$f"; echo ""; done
+	bash scripts/run-all-tests.sh all
+
+test-panel:
+	bash scripts/run-all-tests.sh panel
+
+test-dash:
+	bash scripts/run-all-tests.sh dash
+
+test-lead:
+	bash scripts/run-all-tests.sh lead
+
+test-portal:
+	bash scripts/run-all-tests.sh portal
+
+test-docker:
+	bash scripts/run-all-tests.sh docker
 
 # ── Linting & Static Analysis ───────────────────────────────
 lint: lint-php lint-js lint-phpcs

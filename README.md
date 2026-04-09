@@ -12,11 +12,11 @@ Run `./setup.sh` and in under 2 minutes you'll have:
 |-------|----------------|
 | **Docker Stack** | WordPress + PHP 8.x, MySQL 8.0, Redis 7, phpMyAdmin — all with health checks, resource limits, and Traefik labels |
 | **Security** | PHP hardening (disable_functions, secure cookies, expose_php=Off), Redis auth, WordPress mu-plugin with 9 security features, non-default table prefix |
-| **DevOps** | Makefile with 20+ targets, backup/restore/cache scripts, CI pipeline (PHP lint, PHPCS, ESLint, PHPStan, Docker validation) |
+| **DevOps** | Makefile with 28+ targets, backup/restore/cache scripts, master test runner, CI pipeline (PHP lint, PHPCS, ESLint, PHPStan, Docker validation) |
 | **QA** | ESLint 9, Prettier, PHPCS/WPCS, PHPStan, Husky pre-commit hooks, EditorConfig |
 | **AI Ecosystem** | 11 specialized agents, 12 instruction files, 6 skills, 16 prompt commands, 4 safety hooks — all pre-configured for VS Code + GitHub Copilot |
 | **Plugin Scaffold** | Custom admin panel plugin with REST API, custom roles, router, login/panel templates |
-| **Tests** | 3 bash test suites (stack health, connections, plugin scaffold) with pass/fail counters |
+| **Tests** | 3 bash test suites (stack health, connections, plugin scaffold) with pass/fail counters + master test runner with scoped execution |
 
 ## Quick Start
 
@@ -150,14 +150,18 @@ make logs-mysql     # MySQL logs only
 
 # Database
 make backup         # Backup with rotation (keeps 10)
-make shell-mysql    # MySQL CLI
-
+make shell-mysql    # MySQL CLImake shell-wp       # WordPress container shell
 # Cache
 bash scripts/clear-cache.sh   # Flush Redis
 
 # Testing
 make test           # Test all connections
 make test-all       # Run all test suites
+make test-panel     # Panel tests only
+make test-dash      # Dashboard tests only
+make test-lead      # Lead tests only
+make test-portal    # Portal tests only
+make test-docker    # Docker tests only
 
 # Code quality
 make lint           # Run all linters
@@ -181,19 +185,26 @@ your-project/
 ├── docker/wordpress/Dockerfile # Custom WP image with Redis
 ├── .env                        # Secrets (auto-generated, gitignored)
 ├── .env.example                # Template for .env variables
-├── Makefile                    # 20+ operational targets
+├── .php-version                # PHP version for tooling
+├── Makefile                    # 28+ operational targets
+├── README.md                   # Project overview
 ├── BACKLOG.md                  # Ticket tracking (create after setup)
 │
 ├── scripts/
 │   ├── backup-database.sh      # mysqldump + gzip + rotation
 │   ├── restore-database.sh     # Restore from .sql.gz backup
 │   ├── clear-cache.sh          # Flush Redis cache
+│   ├── run-all-tests.sh        # Master test runner (scoped execution)
 │   └── test-connections.sh     # Verify all services
 │
 ├── tests/
 │   ├── test-dock-001-stack-health.sh
 │   ├── test-dock-002-connections.sh
 │   └── test-wp-001-plugin-scaffold.sh
+│
+├── docs/
+│   ├── README.md               # Architecture and project docs
+│   └── GOOGLE-SETUP.md         # Google API configuration guide
 │
 ├── data/wordpress/wp-content/
 │   ├── mu-plugins/{slug}-security.php    # Security hardening
@@ -211,6 +222,7 @@ your-project/
 │   ├── copilot-instructions.md           # AI project context
 │   ├── workflows/ci.yml                  # CI pipeline (4 jobs)
 │   ├── hooks/                            # Safety hooks
+│   ├── ISSUE_TEMPLATE/                   # Bug report + ticket templates
 │   ├── agents/           (11 agents)     # Specialized AI agents
 │   ├── instructions/     (12 files)      # Context-aware instructions
 │   ├── skills/           (6 skills)      # Reusable AI workflows

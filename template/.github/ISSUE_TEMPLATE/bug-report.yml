@@ -1,0 +1,60 @@
+name: "🐛 Bug Report"
+description: "Report a bug in the stack"
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Affected Area"
+      options:
+        - WordPress (website)
+        - Dashboard (admin panel)
+        - Docker (containers)
+        - MySQL (database)
+        - Redis (cache)
+        - Traefik (proxy/routing)
+        - Scripts (backup/restore/test)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "What's happening?"
+      placeholder: "The dashboard doesn't load charts..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Exact steps to reproduce"
+      placeholder: |
+        1. Navigate to the admin panel
+        2. Click on "Dashboard"
+        3. The charts fail to render
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Behavior"
+      placeholder: "The charts should display data correctly"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Severity"
+      options:
+        - Critical (production down)
+        - High (core functionality broken)
+        - Medium (secondary functionality affected)
+        - Low (cosmetic/minor)
+    validations:
+      required: true

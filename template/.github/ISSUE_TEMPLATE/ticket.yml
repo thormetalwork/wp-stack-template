@@ -1,0 +1,91 @@
+name: "🎫 Development Ticket"
+description: "Create a development ticket"
+title: "[TICKET-XXX-000]: "
+labels: ["ticket", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## New Development Ticket
+
+        Fill in the fields to create a structured ticket.
+        **Naming:** `TICKET-{SCOPE}-{NUM}` (e.g., TICKET-WP-001)
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: "Scope"
+      description: "Select the ticket area"
+      options:
+        - WP - WordPress (themes, plugins, pages)
+        - DOCK - Docker (compose, containers)
+        - DASH - Dashboard (KPIs, charts, API)
+        - SEO - SEO (meta tags, schema, GBP)
+        - INF - Infrastructure (Traefik, SSL, server)
+        - DB - Database (MySQL, migrations)
+        - CACHE - Cache (Redis, performance)
+        - SEC - Security (audits, hardening)
+        - DOC - Documentation
+        - FIX - Bug fixes
+        - LEAD - Leads (CRM, pipeline, tracking)
+        - BRAND - Branding (design, logo)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      description: "Select priority level"
+      options:
+        - P0 - Critical (production blocker)
+        - P1 - Important (this week)
+        - P2 - Medium (this sprint)
+        - P3 - Low (future backlog)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: "User Story"
+      description: "As a [role], I want [action] so that [benefit]"
+      placeholder: |
+        As a **visitor**, I want to **see a portfolio of completed work** so that I can **evaluate quality before contacting**.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "Acceptance Criteria (Gherkin)"
+      description: "Define scenarios in Given/When/Then format"
+      placeholder: |
+        ```gherkin
+        Scenario: Portfolio shows projects with images
+          Given the Portfolio page is published
+          When a visitor navigates to /portfolio/
+          Then they see a responsive grid with project images
+          And each project has title, category, and main image
+        ```
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: "Technical Details (optional)"
+      description: "Files to modify, dependencies, considerations"
+    validations:
+      required: false
+
+  - type: input
+    id: estimation
+    attributes:
+      label: "Estimation"
+      description: "Estimated time"
+      placeholder: "4-6 hours"
+    validations:
+      required: false
