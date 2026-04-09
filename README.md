@@ -14,7 +14,7 @@ Run `./setup.sh` and in under 2 minutes you'll have:
 | **Security** | PHP hardening (disable_functions, secure cookies, expose_php=Off), Redis auth, WordPress mu-plugin with 9 security features, non-default table prefix |
 | **DevOps** | Makefile with 20+ targets, backup/restore/cache scripts, CI pipeline (PHP lint, PHPCS, ESLint, PHPStan, Docker validation) |
 | **QA** | ESLint 9, Prettier, PHPCS/WPCS, PHPStan, Husky pre-commit hooks, EditorConfig |
-| **AI Ecosystem** | 7 specialized agents, 8 instruction files, 6 skills, 11 prompt commands, 3 safety hooks — all pre-configured for VS Code + GitHub Copilot |
+| **AI Ecosystem** | 11 specialized agents, 12 instruction files, 6 skills, 16 prompt commands, 4 safety hooks — all pre-configured for VS Code + GitHub Copilot |
 | **Plugin Scaffold** | Custom admin panel plugin with REST API, custom roles, router, login/panel templates |
 | **Tests** | 3 bash test suites (stack health, connections, plugin scaffold) with pass/fail counters |
 
@@ -194,10 +194,10 @@ your-project/
 │   ├── copilot-instructions.md           # AI project context
 │   ├── workflows/ci.yml                  # CI pipeline (4 jobs)
 │   ├── hooks/                            # Safety hooks
-│   ├── agents/           (7 agents)      # Specialized AI agents
-│   ├── instructions/     (8 files)       # Context-aware instructions
+│   ├── agents/           (11 agents)     # Specialized AI agents
+│   ├── instructions/     (12 files)      # Context-aware instructions
 │   ├── skills/           (6 skills)      # Reusable AI workflows
-│   └── prompts/          (11 commands)   # Quick-action slash commands
+│   └── prompts/          (16 commands)   # Quick-action slash commands
 │
 └── QA configs
     ├── package.json, composer.json       # Dependencies
@@ -211,7 +211,7 @@ your-project/
 
 This template includes a complete AI-assisted development setup for **VS Code + GitHub Copilot Chat**:
 
-### Agents (7)
+### Agents (11)
 Specialized AI personas with restricted tools and focused expertise:
 
 | Agent | Purpose |
@@ -223,6 +223,10 @@ Specialized AI personas with restricted tools and focused expertise:
 | Full Cycle Developer | End-to-end ticket implementation |
 | Ticket Manager | Backlog and ticket management |
 | Performance Analyst | Performance monitoring and optimization |
+| SEO Specialist | SEO, local search, schema markup |
+| Content Writer | Bilingual website copy and marketing |
+| Dashboard Dev | KPI dashboards, Chart.js, data visualization |
+| Client Reporter | Monthly reports, KPI summaries, client communications |
 
 ### Skills (6)
 Reusable multi-step workflows:
@@ -236,7 +240,7 @@ Reusable multi-step workflows:
 | `ticket-management` | BACKLOG.md ticket CRUD |
 | `wordpress-dev` | WordPress development patterns |
 
-### Prompts (10)
+### Prompts (16)
 Slash commands for common operations:
 
 | Command | Action |
@@ -252,12 +256,17 @@ Slash commands for common operations:
 | `/performance-check` | Performance analysis |
 | `/backlog-status` | Backlog dashboard |
 | `/cache-status` | Redis cache diagnostics |
+| `/db-migrate` | Run pending database migrations |
+| `/migrate-database` | Migrate DB between environments |
+| `/seo-audit` | Comprehensive SEO analysis |
+| `/new-page` | Create WordPress page with SEO |
+| `/client-report` | Generate monthly client report |
 
-### Instructions (7)
+### Instructions (12)
 Auto-loaded context based on file patterns:
 
 | File | Applies To |
-|------|-----------|
+|------|------------|
 | `docker.instructions.md` | Dockerfile, docker-compose.yml |
 | `wordpress.instructions.md` | PHP files in wp-content |
 | `security.instructions.md` | All code generation |
@@ -266,6 +275,10 @@ Auto-loaded context based on file patterns:
 | `env-validation.instructions.md` | .env files |
 | `workflows.instructions.md` | BACKLOG.md, .github/ |
 | `redis.instructions.md` | docker-compose.yml, clear-cache.sh |
+| `google-apis.instructions.md` | API integration files |
+| `leads.instructions.md` | Plugin lead management files |
+| `documentation.instructions.md` | Markdown docs |
+| `dashboard.instructions.md` | Dashboard HTML/JS/CSS |
 
 ## Extending the Template
 

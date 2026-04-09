@@ -26,7 +26,7 @@
 - MySQL exposed only on `127.0.0.1:{{MYSQL_PORT}}` (local access)
 - Redis: 64MB limit, LRU eviction policy for WP Object Cache
 - WordPress custom Dockerfile with PECL Redis extension
-- All services have health checks with retries
+- MySQL, Redis, WordPress have health checks with retries; phpMyAdmin has health check + depends on MySQL healthy
 
 ## Code Style & Conventions
 
@@ -104,6 +104,14 @@ make fix         # Auto-fix lint issues
 | `package.json` / `composer.json` | JS + PHP dependencies and QA tools |
 | `BACKLOG.md` | All tickets with status, priorities, and dependencies |
 
+## CI Pipeline
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on push to `main`, `dev`, `feat/**`, `fix/**`:
+- **lint-php** — PHP syntax + PHPCS/WPCS (strict on `main`, warnings on branches)
+- **lint-js** — ESLint + Prettier format check
+- **php-static-analysis** — PHPStan (strict on `main`)
+- **validate-docker** — `docker compose config` syntax validation
+
 ## Security
 
 - Never expose database credentials in code or logs
@@ -117,8 +125,8 @@ This project has a comprehensive `.github/` setup — see files before creating 
 
 | Primitive | Count | Location |
 |-----------|-------|----------|
-| Instructions | 8 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
-| Agents | 7 | `.github/agents/` — domain-specific with restricted tool sets |
+| Instructions | 12 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
+| Agents | 11 | `.github/agents/` — domain-specific with restricted tool sets |
 | Skills | 6 | `.github/skills/` — reusable workflows (TDD, code-review, ship-feature, stack-mgmt, tickets, WP) |
-| Prompts | 11 | `.github/prompts/` — quick-action slash commands |
-| Hooks | 3 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh |
+| Prompts | 16 | `.github/prompts/` — quick-action slash commands |
+| Hooks | 4 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh + sql-guard.sh |
