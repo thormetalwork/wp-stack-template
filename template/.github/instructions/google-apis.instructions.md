@@ -1,10 +1,14 @@
 ---
-description: "Use when editing Google API integrations, external data fetching, OAuth tokens, cron sync, GA4, Search Console, Google Business Profile, Instagram Graph API, Maps Embed, or reCAPTCHA verification."
+description: "Use when editing Google API integrations, external data fetching, OAuth tokens, cron sync, GA4, Search Console, Google Business Profile, Instagram Graph API, Maps Embed, reCAPTCHA verification, Schema Markup (JSON-LD), SEO Meta Tags, XML Sitemap, or Google Fonts."
 applyTo:
   - data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/includes/class-*-cron.php
   - data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/includes/class-*-google-auth.php
   - data/wordpress/wp-content/mu-plugins/*-contact-form.php
   - data/wordpress/wp-content/mu-plugins/*-service-pages.php
+  - data/wordpress/wp-content/mu-plugins/*-schema.php
+  - data/wordpress/wp-content/mu-plugins/*-meta-tags.php
+  - data/wordpress/wp-content/mu-plugins/*-sitemap.php
+  - data/wordpress/wp-content/themes/*/functions.php
 ---
 # Google & External API Integration Rules
 
@@ -18,6 +22,10 @@ applyTo:
 | Instagram Graph API | `class-{{PLUGIN_SLUG}}-cron.php` | `IG_ACCESS_TOKEN` env var |
 | Google Maps Embed | mu-plugin | `GCP_API_KEY` env var |
 | reCAPTCHA Enterprise v3 | mu-plugin | `GCP_SERVER_API_KEY` env var |
+| Schema Markup (JSON-LD) | mu-plugin | None (output only) |
+| SEO Meta Tags & Open Graph | mu-plugin | None (output only) |
+| XML Sitemap | mu-plugin | None (output only) |
+| Google Fonts | theme `functions.php` + `theme.json` | Public CDN |
 
 ## OAuth2 Token Management
 
@@ -55,3 +63,39 @@ Always check `defined('CONSTANT')` or `getenv()` before using. Return early with
 - All API calls must check `is_wp_error($response)` and `wp_remote_retrieve_response_code()`
 - Log failures with `error_log()` — never expose to frontend
 - Placeholder APIs (GBP, Instagram) must return `array()` gracefully when config is missing
+
+## Schema Markup (JSON-LD)
+
+- **LocalBusiness** schema at `wp_head` priority 1 — global on every page
+- **Service** schema at priority 2 — only on service page slugs
+- **FAQPage** schema at priority 3 — per-service FAQs embedded in structured data
+- **BreadcrumbList** schema — navigation path for Google search breadcrumbs
+- Centralized JSON-LD output helper — `json_encode` + `<script type="application/ld+json">`
+- Keep `@id` anchors consistent: `home_url('/#localbusiness')` for cross-referencing
+- Provider always references `@id` of LocalBusiness (do not duplicate full data)
+
+## SEO Meta Tags
+
+- Title override via `pre_get_document_title` filter
+- `<meta name="description">` based on per-slug SEO mapping array
+- Open Graph: `og:site_name`, `og:locale`, `og:type`, `og:title`, `og:description`, `og:url`, `og:image`
+- Twitter Card: `summary_large_image` with matching title/description/image
+- `hreflang` tags: `en`, `es`, `x-default` — on pages and portfolio singles
+- Canonical URL: on front page, singular posts, portfolio archives
+- Add new pages to the SEO mapping array when creating service pages
+
+## XML Sitemap
+
+- Custom rewrite rule: `sitemap.xml` → `index.php?{prefix}_sitemap=1`
+- Includes: all published pages + all published portfolio posts + portfolio archive
+- Output: XML with `<urlset>`, `<url>`, `<loc>`, `<lastmod>` (ISO 8601)
+- Submit to Google Search Console via `GSC_SITE_URL` domain property
+- After adding new pages: flush rewrite rules if needed
+
+## Google Fonts
+
+- Loaded via theme `functions.php` with `wp_enqueue_style()` and `theme.json`
+- CDN: `https://fonts.googleapis.com/css2?family=...&display=swap`
+- Preconnect hints: `fonts.googleapis.com` + `fonts.gstatic.com` (crossorigin)
+- CSP headers must whitelist both domains
+- Do NOT self-host — Google Fonts CDN provides optimal caching and subsetting
