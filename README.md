@@ -74,6 +74,23 @@ make test      # Verify connections
 make status    # Check container health
 ```
 
+### Configure Google APIs (Post-Setup)
+
+The stack supports 8 Google integrations out of the box. During `setup.sh`, you can enter API keys interactively or configure them later in `.env`.
+
+| Integration | Required For | Status |
+|-------------|-------------|--------|
+| **Google Analytics 4** | Dashboard KPIs | Daily cron sync via OAuth2 |
+| **Google Search Console** | SEO metrics | Daily cron sync via OAuth2 |
+| **Google OAuth2** | GA4 + GSC APIs | Centralized token management |
+| **reCAPTCHA Enterprise v3** | Contact form protection | Score-based bot detection |
+| **Google Maps Embed** | Contact page map | Browser API key |
+| **Google Fonts** | Typography | No setup needed (public CDN) |
+| **Schema Markup (JSON-LD)** | Rich search results | No setup needed (mu-plugin) |
+| **XML Sitemap** | Search indexing | Auto-generated, submit to GSC |
+
+See **[docs/GOOGLE-SETUP.md](docs/GOOGLE-SETUP.md)** for the step-by-step configuration guide.
+
 ## Architecture
 
 ```
