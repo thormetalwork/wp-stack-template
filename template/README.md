@@ -54,7 +54,22 @@ make format        # Auto-fix formatting
 
 - **Environment:** `.env` (auto-generated, gitignored)
 - **Google APIs:** See [docs/GOOGLE-SETUP.md](docs/GOOGLE-SETUP.md)
+- **MCP Servers:** See [docs/MCP-SETUP.md](docs/MCP-SETUP.md)
 - **Database:** `{{MYSQL_DATABASE}}`, user: `{{MYSQL_USER}}`, prefix: `{{TABLE_PREFIX}}`
+
+## MCP Servers (VS Code Copilot)
+
+Five MCP servers auto-configured in `.vscode/mcp.json` (gitignored):
+
+| Server | Purpose |
+|--------|---------|
+| **GitHub** | Repository operations, issues, PRs |
+| **Playwright** | Browser automation, screenshots |
+| **Redis** | Cache operations (GET, SET, SCAN) |
+| **MySQL** | Database queries (SELECT, INSERT, DDL) |
+| **Git** | Log, diff, blame, branch history |
+
+> Credentials use literal values — VS Code cannot resolve `${VAR}` in mcp.json. See [docs/MCP-SETUP.md](docs/MCP-SETUP.md).
 
 ## AI Ecosystem
 
@@ -77,4 +92,5 @@ This project includes a complete AI-assisted development setup for VS Code + Git
 ## Documentation
 
 - [docs/GOOGLE-SETUP.md](docs/GOOGLE-SETUP.md) — Google API configuration guide
+- [docs/MCP-SETUP.md](docs/MCP-SETUP.md) — MCP server setup and customization
 - [docs/README.md](docs/README.md) — Architecture and project documentation

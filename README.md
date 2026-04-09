@@ -15,6 +15,7 @@ Run `./setup.sh` and in under 2 minutes you'll have:
 | **DevOps** | Makefile with 28+ targets, backup/restore/cache scripts, master test runner, CI pipeline (PHP lint, PHPCS, ESLint, PHPStan, Docker validation) |
 | **QA** | ESLint 9, Prettier, PHPCS/WPCS, PHPStan, Husky pre-commit hooks, EditorConfig |
 | **AI Ecosystem** | 11 specialized agents, 12 instruction files, 6 skills, 16 prompt commands, 4 safety hooks — all pre-configured for VS Code + GitHub Copilot |
+| **MCP Servers** | 5 pre-configured MCP servers (GitHub, Playwright, Redis, MySQL, Git) — auto-generated with literal credentials |
 | **Plugin Scaffold** | Custom admin panel plugin with REST API, custom roles, router, login/panel templates |
 | **Tests** | 3 bash test suites (stack health, connections, plugin scaffold) with pass/fail counters + master test runner with scoped execution |
 
@@ -90,6 +91,20 @@ The stack supports 8 Google integrations out of the box. During `setup.sh`, you 
 | **XML Sitemap** | Search indexing | Auto-generated, submit to GSC |
 
 See **[docs/GOOGLE-SETUP.md](docs/GOOGLE-SETUP.md)** for the step-by-step configuration guide.
+
+### Configure MCP Servers (Auto-Generated)
+
+`setup.sh` automatically generates `.vscode/mcp.json` with 5 MCP servers using your literal credentials:
+
+| Server | Transport | Purpose |
+|--------|-----------|---------|
+| **GitHub** | HTTP | Repository operations, issues, PRs via Copilot |
+| **Playwright** | Stdio (npx) | Browser automation, screenshots |
+| **Redis** | Stdio (uvx) | Cache operations (GET, SET, SCAN) |
+| **MySQL** | Stdio (npx) | Database queries (SELECT, INSERT, DDL) |
+| **Git** | Stdio (uvx) | Git log, diff, blame, branch history |
+
+> **Why literal values?** VS Code does NOT expand `${VAR}` in `mcp.json` — this is a known limitation. If you change passwords in `.env`, also update `.vscode/mcp.json`. See **[docs/MCP-SETUP.md](docs/MCP-SETUP.md)**.
 
 ## Architecture
 
@@ -204,7 +219,13 @@ your-project/
 │
 ├── docs/
 │   ├── README.md               # Architecture and project docs
-│   └── GOOGLE-SETUP.md         # Google API configuration guide
+│   ├── GOOGLE-SETUP.md         # Google API configuration guide
+│   └── MCP-SETUP.md            # MCP server setup and customization
+│
+├── .vscode/
+│   ├── settings.json           # Editor settings (tracked)
+│   ├── extensions.json         # Recommended extensions (tracked)
+│   └── mcp.json                # MCP servers — auto-generated (gitignored)
 │
 ├── data/wordpress/wp-content/
 │   ├── mu-plugins/{slug}-security.php    # Security hardening
@@ -358,6 +379,8 @@ echo "Results: $PASS passed, $FAIL failed"
 | Traefik not routing | Verify `traefik-public` network exists: `docker network ls` |
 | Permission denied on scripts | `chmod +x scripts/*.sh` |
 | phpMyAdmin auth fail | Check `PMA_BASICAUTH_USERNAME/PASSWORD` in `.env` |
+| MCP server not connecting | Stack must be running (`make up`), check [docs/MCP-SETUP.md](docs/MCP-SETUP.md) |
+| MCP "variable not resolved" | Use literal values in `mcp.json` — VS Code can't expand `${VAR}` |
 
 ### Create Traefik Network (if missing)
 

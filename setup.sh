@@ -317,6 +317,62 @@ ENVEOF
 success ".env generated with secure passwords and salts"
 warn "Update PMA_BASICAUTH_USERS with a real htpasswd hash"
 
+# ── Generate .vscode/mcp.json with literal values ────────────
+# VS Code does NOT expand shell env vars in mcp.json — literal values required.
+info "Generating .vscode/mcp.json (MCP servers for Copilot)..."
+
+mkdir -p "${SCRIPT_DIR}/.vscode"
+
+cat > "${SCRIPT_DIR}/.vscode/mcp.json" <<MCPEOF
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--headless"]
+    },
+    "redis": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "-qq",
+        "--from", "redis-mcp-server@latest",
+        "redis-mcp-server",
+        "--url", "redis://:${REDIS_PASS}@localhost:${REDIS_PORT}/0"
+      ]
+    },
+    "mysql": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@benborla29/mcp-server-mysql"],
+      "env": {
+        "MYSQL_HOST": "127.0.0.1",
+        "MYSQL_PORT": "${MYSQL_PORT}",
+        "MYSQL_USER": "${MYSQL_USER}",
+        "MYSQL_PASS": "${MYSQL_USER_PASS}",
+        "MYSQL_DB": "${MYSQL_DATABASE}",
+        "ALLOW_INSERT_OPERATION": "true",
+        "ALLOW_UPDATE_OPERATION": "true",
+        "ALLOW_DELETE_OPERATION": "true",
+        "ALLOW_DDL_OPERATION": "true"
+      }
+    },
+    "git": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-git"]
+    }
+  }
+}
+MCPEOF
+
+success ".vscode/mcp.json generated with 5 MCP servers"
+info "MCP servers: GitHub, Playwright, Redis, MySQL, Git"
+info "See docs/MCP-SETUP.md for customization"
+
 # ══════════════════════════════════════════════════════════════
 # STEP 10: Initialize Git Repository
 # ══════════════════════════════════════════════════════════════
@@ -378,6 +434,11 @@ echo -e "  ${CYAN}4.${NC} make up          — Start the stack"
 echo -e "  ${CYAN}5.${NC} make test        — Verify all connections"
 echo -e "  ${CYAN}6.${NC} make status      — Check container health"
 echo ""
+echo -e "  ${BOLD}MCP Servers (VS Code Copilot):${NC}"
+echo -e "  ${GREEN}✅${NC} .vscode/mcp.json generated with 5 servers:"
+echo -e "     GitHub · Playwright · Redis · MySQL · Git"
+echo -e "  ${CYAN}•${NC} See docs/MCP-SETUP.md for customization"
+echo ""
 echo -e "  ${BOLD}Development:${NC}"
 echo -e "  ${CYAN}•${NC} make lint        — Run all linters"
 echo -e "  ${CYAN}•${NC} make test-all    — Run all test suites"
@@ -387,5 +448,6 @@ echo ""
 echo -e "  ${BOLD}Documentation:${NC}"
 echo -e "  ${CYAN}•${NC} README.md              — Project overview"
 echo -e "  ${CYAN}•${NC} docs/GOOGLE-SETUP.md   — Google API configuration guide"
+echo -e "  ${CYAN}•${NC} docs/MCP-SETUP.md      — MCP server customization"
 echo -e "  ${CYAN}•${NC} docs/                  — Architecture, security, AI ecosystem"
 echo ""
