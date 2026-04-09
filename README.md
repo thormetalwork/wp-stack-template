@@ -14,7 +14,7 @@ Run `./setup.sh` and in under 2 minutes you'll have:
 | **Security** | PHP hardening (disable_functions, secure cookies, expose_php=Off), Redis auth, WordPress mu-plugin with 9 security features, non-default table prefix |
 | **DevOps** | Makefile with 20+ targets, backup/restore/cache scripts, CI pipeline (PHP lint, PHPCS, ESLint, PHPStan, Docker validation) |
 | **QA** | ESLint 9, Prettier, PHPCS/WPCS, PHPStan, Husky pre-commit hooks, EditorConfig |
-| **AI Ecosystem** | 7 specialized agents, 7 instruction files, 6 skills, 10 prompt commands — all pre-configured for VS Code + GitHub Copilot |
+| **AI Ecosystem** | 7 specialized agents, 8 instruction files, 6 skills, 11 prompt commands, 3 safety hooks — all pre-configured for VS Code + GitHub Copilot |
 | **Plugin Scaffold** | Custom admin panel plugin with REST API, custom roles, router, login/panel templates |
 | **Tests** | 3 bash test suites (stack health, connections, plugin scaffold) with pass/fail counters |
 
@@ -195,9 +195,9 @@ your-project/
 │   ├── workflows/ci.yml                  # CI pipeline (4 jobs)
 │   ├── hooks/                            # Safety hooks
 │   ├── agents/           (7 agents)      # Specialized AI agents
-│   ├── instructions/     (7 files)       # Context-aware instructions
+│   ├── instructions/     (8 files)       # Context-aware instructions
 │   ├── skills/           (6 skills)      # Reusable AI workflows
-│   └── prompts/          (10 commands)   # Quick-action slash commands
+│   └── prompts/          (11 commands)   # Quick-action slash commands
 │
 └── QA configs
     ├── package.json, composer.json       # Dependencies
@@ -251,6 +251,7 @@ Slash commands for common operations:
 | `/security-audit` | Full security audit |
 | `/performance-check` | Performance analysis |
 | `/backlog-status` | Backlog dashboard |
+| `/cache-status` | Redis cache diagnostics |
 
 ### Instructions (7)
 Auto-loaded context based on file patterns:
@@ -264,6 +265,7 @@ Auto-loaded context based on file patterns:
 | `testing.instructions.md` | Test files |
 | `env-validation.instructions.md` | .env files |
 | `workflows.instructions.md` | BACKLOG.md, .github/ |
+| `redis.instructions.md` | docker-compose.yml, clear-cache.sh |
 
 ## Extending the Template
 

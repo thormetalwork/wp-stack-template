@@ -18,7 +18,7 @@
        │            └──────────────────────────────────────────┘
        │
        ├──▶ {{DEV_DOMAIN}}           → WordPress
-       ├──▶ {{PANEL_DOMAIN}}         → WordPress (Admin Panel)
+       ├──▶ {{PANEL_DOMAIN}}         → Admin Panel (WordPress plugin)
        └──▶ {{PMA_DOMAIN}}           → phpMyAdmin
 ```
 
@@ -39,25 +39,43 @@
 ## Build and Test
 
 ```bash
+# Stack management
 make up          # Start stack
 make down        # Stop stack
 make restart     # Stop + start
 make build       # Rebuild without cache
-make test        # Test all connections
-make backup      # Backup database
+make status      # Show container status
+make clean       # Down + remove volumes
+
+# Logs
 make logs        # Tail all logs
 make logs-wp     # Tail WordPress only
 make logs-mysql  # Tail MySQL only
-make status      # Show container status
+
+# Database & cache
+make backup      # Backup database (10-file rotation)
 make shell-wp    # WordPress container shell
 make shell-mysql # MySQL container shell
-make clean       # Down + remove volumes
+
+# Testing
+make test        # Test all connections
+make test-all    # Run ALL test suites
+
+# Code quality
+make lint        # Run all linters
+make lint-php    # PHP syntax check
+make lint-js     # ESLint
+make lint-format # Prettier check
+make lint-phpcs  # WordPress coding standards
+make lint-phpstan # Static analysis
+make format      # Auto-fix formatting
+make fix         # Auto-fix lint issues
 ```
 
 ## Development Workflow
 
 - **Tickets:** `BACKLOG.md` is the single source of truth. Format: `TICKET-{SCOPE}-{NUM}`
-- **Branching:** `main` → `dev` → `feat/TICKET-XXX-short-desc`
+- **Branching:** `main` ← `dev` ← `feat/TICKET-XXX-short-desc` (also `fix/`, `hotfix/`)
 - **Commits:** `{type}(TICKET-XXX): description` (types: feat, fix, refactor, test, docs, chore)
 - **TDD mandatory:** RED → GREEN → REFACTOR for all features
 - **Tests:** Bash scripts in `tests/` using pass/fail counters pattern. Naming: `test-{scope}-{num}-{description}.sh`
@@ -73,13 +91,17 @@ make clean       # Down + remove volumes
 
 | Path | Purpose |
 |------|---------|
-| `docker-compose.yml` | Service orchestration |
-| `docker/wordpress/Dockerfile` | Custom WP image with Redis |
+| `docker-compose.yml` | Service orchestration (4 services) |
+| `docker/wordpress/Dockerfile` | Custom WP image with Redis PECL |
+| `Makefile` | Operational targets (stack, test, lint) |
+| `.env` / `.env.example` | Secrets (gitignored) / variable template |
 | `scripts/` | Operational scripts (backup, restore, test, cache) |
 | `tests/` | Bash test scripts (TDD, integration) |
 | `data/wordpress/` | WordPress files (volume mount) |
 | `data/mysql/` | MySQL data (volume mount) |
 | `docs/` | Project documentation |
+| `.github/` | AI ecosystem (instructions, agents, skills, prompts, hooks, CI) |
+| `package.json` / `composer.json` | JS + PHP dependencies and QA tools |
 | `BACKLOG.md` | All tickets with status, priorities, and dependencies |
 
 ## Security
@@ -95,8 +117,8 @@ This project has a comprehensive `.github/` setup — see files before creating 
 
 | Primitive | Count | Location |
 |-----------|-------|----------|
-| Instructions | 7 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
+| Instructions | 8 | `.github/instructions/` — auto-loaded by `applyTo` file patterns |
 | Agents | 7 | `.github/agents/` — domain-specific with restricted tool sets |
 | Skills | 6 | `.github/skills/` — reusable workflows (TDD, code-review, ship-feature, stack-mgmt, tickets, WP) |
-| Prompts | 10 | `.github/prompts/` — quick-action slash commands |
-| Hooks | 1 | `.github/hooks/safety-checks.json` — blocks destructive commands + PHP lint |
+| Prompts | 11 | `.github/prompts/` — quick-action slash commands |
+| Hooks | 3 | `.github/hooks/` — safety-checks.json + php-lint-check.sh + format-on-save.sh |
