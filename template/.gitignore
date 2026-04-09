@@ -1,0 +1,37 @@
+# Data volumes (ignore everything except custom code)
+data/*
+!data/wordpress/
+data/wordpress/*
+!data/wordpress/wp-content/
+data/wordpress/wp-content/*
+!data/wordpress/wp-content/plugins/
+!data/wordpress/wp-content/mu-plugins/
+data/wordpress/wp-content/plugins/*
+!data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/
+
+# Environment
+.env
+.env.production
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+vendor/
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# Logs
+*.log
+
+# Backups
+backups/
+*.sql
+*.sql.gz

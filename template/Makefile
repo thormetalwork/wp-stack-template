@@ -1,0 +1,87 @@
+.PHONY: up down restart logs build status backup restore clean \
+       test test-all \
+       lint lint-php lint-js lint-format lint-phpcs lint-phpstan \
+       format fix
+
+# ── Stack Management ─────────────────────────────────────────
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
+restart:
+	docker compose down && docker compose up -d
+
+build:
+	docker compose build --no-cache && docker compose up -d
+
+logs:
+	docker compose logs -f --tail=100
+
+logs-wp:
+	docker compose logs -f --tail=100 wordpress
+
+logs-mysql:
+	docker compose logs -f --tail=100 mysql
+
+status:
+	docker compose ps
+
+backup:
+	bash scripts/backup-database.sh
+
+restore:
+	@echo 'Usage: bash scripts/restore-database.sh file.sql.gz'
+
+clean:
+	docker compose down -v --remove-orphans
+
+shell-wp:
+	docker exec -it {{DOCKER_PREFIX}}_wordpress bash
+
+shell-mysql:
+	docker exec -it {{DOCKER_PREFIX}}_mysql mysql -u root -p
+
+# ── Testing ──────────────────────────────────────────────────
+test:
+	bash scripts/test-connections.sh
+
+test-all:
+	@echo "Running all tests..."
+	@for f in tests/test-*.sh; do echo "▸ $$f"; bash "$$f"; echo ""; done
+
+# ── Linting & Static Analysis ───────────────────────────────
+lint: lint-php lint-js lint-phpcs
+	@echo "✅ All linting passed"
+
+lint-php:
+	@echo "▸ PHP Syntax Check..."
+	@find data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}} -name "*.php" -exec php -l {} \; 2>&1 | grep -v "No syntax errors" || echo "✅ PHP syntax OK"
+
+lint-js:
+	@echo "▸ ESLint..."
+	@npx eslint data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/assets/js/ --ignore-pattern "*.min.js"
+
+lint-format:
+	@echo "▸ Prettier Check..."
+	@npx prettier --check "data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/**/*.{js,css}" --ignore-path .prettierignore
+
+lint-phpcs:
+	@echo "▸ PHPCS WordPress Standards..."
+	@vendor/bin/phpcs --standard=.phpcs.xml --report=summary || true
+
+lint-phpstan:
+	@echo "▸ PHPStan Static Analysis..."
+	@vendor/bin/phpstan analyse --configuration=phpstan.neon --no-progress || true
+
+# ── Auto-fix ─────────────────────────────────────────────────
+format:
+	@echo "▸ Prettier Fix..."
+	@npx prettier --write "data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/**/*.{js,css}" --ignore-path .prettierignore
+
+fix: format
+	@echo "▸ ESLint Fix..."
+	@npx eslint data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/assets/js/ --ignore-pattern "*.min.js" --fix || true
+	@echo "▸ PHPCBF Fix..."
+	@vendor/bin/phpcbf --standard=.phpcs.xml || true

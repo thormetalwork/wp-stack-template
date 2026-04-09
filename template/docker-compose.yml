@@ -1,0 +1,123 @@
+services:
+  mysql:
+    image: mysql:{{MYSQL_VERSION}}
+    container_name: {{DOCKER_PREFIX}}_mysql
+    restart: always
+    mem_limit: 512m
+    cpus: 1.0
+    ports:
+      - "127.0.0.1:{{MYSQL_PORT}}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - {{PROJECT_SLUG}}-network
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h localhost -u root --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: {{DOCKER_PREFIX}}_redis
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.5
+    ports:
+      - "127.0.0.1:{{REDIS_PORT}}:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - {{PROJECT_SLUG}}-network
+
+  wordpress:
+    build:
+      context: ./docker/wordpress
+      dockerfile: Dockerfile
+    image: {{DOCKER_PREFIX}}_wordpress:{{WP_VERSION}}-php{{PHP_VERSION}}-redis
+    container_name: {{DOCKER_PREFIX}}_wordpress
+    restart: always
+    mem_limit: 512m
+    cpus: 1.0
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-0}"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - ./data/wordpress:/var/www/html
+    networks:
+      - {{PROJECT_SLUG}}-network
+      - traefik-public
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/wp-login.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}.rule=Host(`{{DEV_DOMAIN}}`) || Host(`{{PANEL_DOMAIN}}`)"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}.entrypoints=websecure"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}.tls=true"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}.middlewares=security-headers@file,rate-limit@file"
+      - "traefik.http.services.{{TRAEFIK_ROUTER}}.loadbalancer.server.port=80"
+
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: {{DOCKER_PREFIX}}_phpmyadmin
+    restart: always
+    mem_limit: 256m
+    cpus: 0.5
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    networks:
+      - {{PROJECT_SLUG}}-network
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}-pma.rule=Host(`{{PMA_DOMAIN}}`)"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}-pma.entrypoints=websecure"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}-pma.tls=true"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}-pma.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.{{TRAEFIK_ROUTER}}-pma-auth.basicauth.users=${PMA_BASICAUTH_USERS}"
+      - "traefik.http.routers.{{TRAEFIK_ROUTER}}-pma.middlewares={{TRAEFIK_ROUTER}}-pma-auth,security-headers@file,rate-limit@file"
+      - "traefik.http.services.{{TRAEFIK_ROUTER}}-pma.loadbalancer.server.port=80"
+
+volumes:
+  redis_data:
+
+networks:
+  {{PROJECT_SLUG}}-network:
+    driver: bridge
+  traefik-public:
+    external: true

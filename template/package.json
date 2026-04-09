@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.3.0",
+    "husky": "^9.1.0"
+  },
+  "scripts": {
+    "lint": "eslint data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/assets/js/ --ignore-pattern '*.min.js'",
+    "lint:fix": "eslint data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/assets/js/ --ignore-pattern '*.min.js' --fix",
+    "format": "prettier --write 'data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/**/*.{js,css}' --ignore-path .prettierignore",
+    "format:check": "prettier --check 'data/wordpress/wp-content/plugins/{{PLUGIN_SLUG}}/**/*.{js,css}' --ignore-path .prettierignore",
+    "prepare": "husky"
+  }
+}
